@@ -1,9 +1,11 @@
+import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { createDiary, getAllDiaries } from './services/diary';
 import type { NonSensitiveDiaryEntry } from './types';
 
 function App() {
   const [diaries, setDiaries] = useState<NonSensitiveDiaryEntry[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     getAllDiaries().then(setDiaries);
@@ -19,17 +21,33 @@ function App() {
           const form = event.currentTarget;
           const formData = new FormData(form);
 
-          const newEntry = await createDiary({
-            date: String(formData.get('date')),
-            visibility: String(formData.get('visibility')),
-            weather: String(formData.get('weather')),
-            comment: String(formData.get('comment')),
-          });
-          setDiaries((diaries) => diaries.concat(newEntry));
+          try {
+            const newEntry = await createDiary({
+              date: String(formData.get('date')),
+              visibility: String(formData.get('visibility')),
+              weather: String(formData.get('weather')),
+              comment: String(formData.get('comment')),
+            });
+            setDiaries((diaries) => diaries.concat(newEntry));
 
-          form.reset();
+            form.reset();
+          } catch (error) {
+            if (axios.isAxiosError(error)) {
+              const errorMessage = String(error.response?.data);
+              setErrorMessage(
+                errorMessage.replace('Something went wrong. ', ''),
+              );
+            } else {
+              console.error(error);
+            }
+          }
         }}
       >
+        {errorMessage ? (
+          <div>
+            <p style={{ color: 'red' }}>{errorMessage}</p>
+          </div>
+        ) : null}
         <div>
           <label htmlFor="date">date</label>
           <input type="date" name="date" id="date" />
