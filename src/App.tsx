@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { createDiary, getAllDiaries } from './services/diary';
-import type { NonSensitiveDiaryEntry } from './types';
+import { Visibility, Weather, type NonSensitiveDiaryEntry } from './types';
 
 function App() {
   const [diaries, setDiaries] = useState<NonSensitiveDiaryEntry[]>([]);
@@ -52,17 +52,32 @@ function App() {
           <label htmlFor="date">date</label>
           <input type="date" name="date" id="date" />
         </div>
-        <div>
-          <label htmlFor="visibility">visibility</label>
-          <input type="text" name="visibility" id="visibility" />
-        </div>
-        <div>
-          <label htmlFor="weather">weather</label>
-          <input type="text" name="weather" id="weather" />
-        </div>
+        <fieldset>
+          <legend>visibility</legend>
+          {Object.values(Visibility).map((visibility) => (
+            <Fragment key={visibility}>
+              <input
+                type="radio"
+                name="visibility"
+                id={visibility}
+                value={visibility}
+              />
+              <label htmlFor={visibility}>{visibility}</label>
+            </Fragment>
+          ))}
+        </fieldset>
+        <fieldset>
+          <legend>weather</legend>
+          {Object.values(Weather).map((weather) => (
+            <Fragment key={weather}>
+              <input type="radio" name="weather" id={weather} value={weather} />
+              <label htmlFor={weather}>{weather}</label>
+            </Fragment>
+          ))}
+        </fieldset>
         <div>
           <label htmlFor="comment">comment</label>
-          <textarea name="comment" id="comment" />
+          <input type="text" name="comment" id="comment" />
         </div>
         <div>
           <button type="submit">Add</button>
